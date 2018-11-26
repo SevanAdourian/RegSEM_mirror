@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/RegSEM/!svn/ver/3/trunk/SOLVE/src/BLAS
+END
+xerbla.f
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/RegSEM/!svn/ver/3/trunk/SOLVE/src/BLAS/xerbla.f
+END
+lsame.f
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/RegSEM/!svn/ver/3/trunk/SOLVE/src/BLAS/lsame.f
+END
+dgemm.f
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/RegSEM/!svn/ver/3/trunk/SOLVE/src/BLAS/dgemm.f
+END
