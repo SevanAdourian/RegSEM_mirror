@@ -61,7 +61,7 @@ logical, parameter :: apply_anom = .false.
 !!! check for outpt model
 
 write_model_vtk=.false.
-if(Tdomain%t_reversal_mirror==4)write_model_vtk=.true.
+if(Tdomain%t_reversal_mirror==4)write_model_vtk=.false.
 
 !!! Initialisation !!!
 
@@ -444,7 +444,7 @@ do n = 0,Tdomain%n_elem-1
                  Tdomain%specel(n)%Mu(i,j,k) = mu
               endif
            endif
-        else
+        else ! End of anisotropic case
            if (Tdomain%curve) then
               call get_value (r,theta,phi,rho,vp,vs,Qmu,Tdomain%specel(n)%moho_position)
               vph = vp 
@@ -738,7 +738,6 @@ endif
 !!! Calculating the time step following the Courant criteria !!!
 
 call compute_dt (Tdomain,dt,fmax)
-
 allocate (timestep(0:Tdomain%n_proc-1))
 allocate (freqmax(0:Tdomain%n_proc-1))
 call mpi_allgather(dt,1,mpi_double_precision,timestep,1,mpi_double_precision,mpi_comm_world,code)
@@ -753,9 +752,7 @@ deallocate (freqmax)
 decim_fact = int(0.25d0/(fmax*dt)) 
 Tdomain%mirror_displ%decim_fact = decim_fact
 Tdomain%mirror_force%decim_fact = decim_fact
-Tdomain%mirror_excit%decim_fact = decim_fact
 Tdomain%sTimeParam%ntime = int(Tdomain%sTimeParam%Duration/dt) + 1
-
 Tdomain%sTimeParam%dt = Tdomain%sTimeParam%Duration/(Tdomain%sTimeParam%ntime-1)
 print *, "THE NUMBER OF ITERATION IS", Tdomain%sTimeParam%ntime
 print *, "THE TIME STEP IS", Tdomain%sTimeParam%dt

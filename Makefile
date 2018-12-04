@@ -34,7 +34,7 @@ Modules/module_A3d.o :	$(MODULEDIR)def_gparam.o $(MODULEDIR)earth_modele.o \
 
 
 spec.x : make_module make_BLAS $(OBJ)
-	$(FC) $(F90FLAGS) $(OPT) -o ../bin_bup/$@ $(OBJ) $(OBJ2) $(OBJ_MOD)
+	$(FC) $(F90FLAGS) $(OPT) -o ../bin_orig/$@ $(OBJ) $(OBJ2) $(OBJ_MOD)
 
 make_module : 	$(OBJ_MOD)
 
@@ -57,4 +57,4 @@ clean_BLAS:
 	rm -f BLAS/*.o
 
 cleanx:
-	rm -f ../bin_bup/*.x
+	rm -f ../bin_orig/*.x

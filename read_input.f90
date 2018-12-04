@@ -333,7 +333,7 @@ do i = 0,Tdomain%n_elem-1
 enddo
 deallocate (L_Face,L_Edge)
 
-! print*, '[ read_input ], t_reversal = ', Tdomain%t_reversal_mirror
+
 ! Read receivers features
 if (Tdomain%save_trace) then
     open (14, file=Tdomain%station_file, status="old")

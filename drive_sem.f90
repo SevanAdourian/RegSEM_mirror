@@ -116,9 +116,7 @@ Tdomain%sTimeParam%rtime = 0.d0
 do ntime = 0, Tdomain%sTimeParam%ntime-1
    t = mpi_wtime()
    call suspendcheck
-   ! print*, '[ drive_sem ] Entering Newmark', rg ! DEBUG 
    call Newmark (Tdomain, rg, ntime)
-   ! print*, '[ drive_sem ] Exited Newmark', rg ! DEBUG 
 !   if (Tdomain%save_snapshot .and. mod(ntime,Tdomain%sTimeParam%dnsnap)==0 .and. ntime/=0) then
    if (Tdomain%save_snapshot .and. &
        ( (Tdomain%t_reversal_mirror<=1 .and. mod(ntime,Tdomain%sTimeParam%dnsnap)==0) .or. &

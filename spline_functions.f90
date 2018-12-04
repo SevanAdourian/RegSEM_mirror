@@ -275,8 +275,6 @@ subroutine bchslv (Tdomain, w, nbands, nrow, opt)
    mir => Tdomain%mirror_displ
   elseif(opt=='force')then
    mir => Tdomain%mirror_force
-  elseif(opt=='excit')then
-   mir => Tdomain%mirror_excit
   endif
 !
   lunit = mir%lunit
@@ -386,8 +384,6 @@ if(opt=='displ')then
 mir => Tdomain%mirror_displ
 elseif(opt=='force')then
 mir => Tdomain%mirror_force
-elseif(opt=='excit')then
-mir => Tdomain%mirror_excit
 else
 write(*,*)'bad value for argument "opt" in subroutine postproc_bsplines'
 endif   

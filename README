@@ -1,0 +1,6 @@
+Before compiling, you need to go in Modules and link the read_model.f90 according to the format of your model
+For example, BSL A3d mantle model routines is linked to the BSL/ directory (already done)
+
+Then
+module purge
+module load shared intel-mpi/recent/64 intel/compiler/64  slurm
