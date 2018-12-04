@@ -117,11 +117,6 @@ do i = 0, Tdomain%n_source - 1
       do j = 1,6
          read (11,*)
       enddo
-   elseif (Tdomain%Ssource(i)%i_type_source == 6) then
-   print *,'REINJECTING PREVIOUSLY COMPUTED WAVEFIELD'
-      do j = 1,6
-         read (11,*)
-      enddo
    else
       stop "WRONG SOURCE TYPE INPUT !!!"
    endif

@@ -1,10 +1,8 @@
 # Makefile
 
-export XLFRTEOPTS="uwidth=64"
-
 FC = 		mpiifort  # MPI - Fortran 90 compiler
-CC = 		icc   # C compiler
-OPT = 		-O3 -fpp -traceback
+CC = 		mpiicc   # C compiler
+OPT = 		-O3 -fpp -qopt-report=0
 #-vec-report0 # -ipo -noalign -fp-model source -w
 MMOD = 		-module
 MODULEDIR = 	./Modules/
@@ -20,7 +18,7 @@ all : spec.x
 
 Modules/Domain.o :	$(MODULEDIR)Element.o $(MODULEDIR)Face.o $(MODULEDIR)Source.o $(MODULEDIR)Receiver.o \
                         $(MODULEDIR)Vertex.o $(MODULEDIR)TimeParam.o $(MODULEDIR)Subdomain.o $(MODULEDIR)Edge.o \
-                        $(MODULEDIR)Adjoint.o $(MODULEDIR)Comm.o $(MODULEDIR)Mirror.o $(MODULEDIR)External_Source.o 
+                        $(MODULEDIR)Adjoint.o $(MODULEDIR)Comm.o $(MODULEDIR)Mirror.o $(MODULEDIR)External_Source.o
 Modules/Element.o :	$(MODULEDIR)Simu.o
 Modules/Face.o :	$(MODULEDIR)Simu.o
 Modules/Edge.o :	$(MODULEDIR)Simu.o
@@ -30,26 +28,17 @@ Modules/nrutil.o :	$(MODULEDIR)nrtype.o
 Modules/module_spline.o :	$(MODULEDIR)nrutil.o $(MODULEDIR)nrtype.o
 Modules/module_sort.o : 	$(MODULEDIR)nrutil.o $(MODULEDIR)nrtype.o
 Modules/init_cond.o :	$(MODULEDIR)module_spline.o
-Modules/module_ellipticity.o :	$(MODULEDIR)module_spline.o $(MODULEDIR)funaro.o
-Modules/read_model.o :	$(MODULEDIR)def_gparam.o $(MODULEDIR)earth_modele.o \
-			$(MODULEDIR)module_A3d.o
+Modules/module_ellipticity.o : $(MODULEDIR)module_A3d.o $(MODULEDIR)module_spline.o $(MODULEDIR)funaro.o
 Modules/module_A3d.o :	$(MODULEDIR)def_gparam.o $(MODULEDIR)earth_modele.o \
-			$(MODULEDIR)module_spline.o $(MODULEDIR)spl_A3d.o
-
+                        $(MODULEDIR)module_spline.o $(MODULEDIR)spl_A3d.o
 
 
 spec.x : make_module make_BLAS $(OBJ)
-	$(FC) $(F90FLAGS) $(OPT) -o ../bin/$@ $(OBJ) $(OBJ2) $(OBJ_MOD)
+	$(FC) $(F90FLAGS) $(OPT) -o ../bin_bup/$@ $(OBJ) $(OBJ2) $(OBJ_MOD)
 
 make_module : 	$(OBJ_MOD)
 
 make_BLAS :	$(OBJ2)
-
-Modules/%.o : Modules/%.f90
-	$(FC) $(MMOD) Modules $(OPT) -c $< -o $@
-
-Modules/%.o : Modules/%.c
-	$(CC) -O2 -c $< -o $@
 
 %.o : %.f90 
 	$(FC) $(F90FLAGS) $(OPT) -c $< -o $@
@@ -68,4 +57,4 @@ clean_BLAS:
 	rm -f BLAS/*.o
 
 cleanx:
-	rm -f ../bin/*.x
+	rm -f ../bin_bup/*.x

@@ -107,7 +107,6 @@ do n = 0, Tdomain%n_elem -1
 
               ratio = dsqrt(vp/dxmin)
               freq = sqrt(vp)/5.d0/sqrt(dxmax)
-              ! freq = vp/5.d0/dxmax
               if (ratio>ratio_max)   ratio_max = ratio
               if (freq<fmax) fmax = freq
               ! fmax is the highest frequency we can model acuurately (assuming

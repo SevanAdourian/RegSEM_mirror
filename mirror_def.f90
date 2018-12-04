@@ -16,9 +16,7 @@ subroutine mirror_definition (Tdomain,rg)
   integer :: xs, ys, zs, nxtot, nytot, nztot, iglob, ngll_mirror_tot, count_gll
   integer, dimension(:), allocatable :: glob_num_mirror, glob_num_mirror_all, sizes, displs
   integer, dimension(:), allocatable :: index_num, index_pos_all, index_pos
-  double precision, dimension(:), allocatable :: x_gll, y_gll, z_gll, x_gll_all, y_gll_all, z_gll_all 
-  real , dimension(:), allocatable :: win_value_ext, win_value_ext_all
-  real , dimension(:), allocatable :: win_value, win_value_all
+  double precision, dimension(:), allocatable :: x_gll, y_gll, z_gll, x_gll_all, y_gll_all, z_gll_all
   double precision :: xa, ya, za, winx, winy, winz, sum1, sum2
   character*60 :: temp_file
   !
@@ -30,9 +28,9 @@ subroutine mirror_definition (Tdomain,rg)
   Tdomain%mirror_displ%lunit2 = 46 ! logical file units
   Tdomain%mirror_force%lunit2 = 45 !
   Tdomain%mirror_excit%lunit2 = 47 ! logical file units
-  Tdomain%mirror_displ%spln_order = 2 ! B-Spline order
-  Tdomain%mirror_force%spln_order = 2 !
-  Tdomain%mirror_excit%spln_order = 2 !
+  Tdomain%mirror_displ%spln_order = 1 ! B-Spline order
+  Tdomain%mirror_force%spln_order = 1 !
+  Tdomain%mirror_excit%spln_order = 1 !
   !
   ! Mirror geometry...
   !
@@ -61,8 +59,7 @@ subroutine mirror_definition (Tdomain,rg)
 
      ! inner mirror for reconstructing time reversed wavefield
 
-     ! if(indx>=i1+1 .and. indx<=i2-1 .and. indy>=j1+1 .and. indy<=j2-1 .and. indz>=k1+1 .and. indz<=k2-1)then
-     if((indx<=i1+1 .or. indx>=i2-1) .and. (indy<=j1+1 .or. indy>=j2-1) .and. (indz<=k1+1 .or. indz>=k2-1))then
+     if(indx>=i1+1 .and. indx<=i2-1 .and. indy>=j1+1 .and. indy<=j2-1 .and. indz>=k1+1 .and. indz<=k2-1)then
 
         x1 = 0
         x2 = ngllx-1
@@ -71,12 +68,13 @@ subroutine mirror_definition (Tdomain,rg)
         z1 = 0
         z2 = ngllz-1
 
-        ! if(indx==i1+1)x1=x2
-        ! if(indx==i2-1)x2=x1
-        ! if(indy==j1+1)y1=y2
-        ! if(indy==j2-1)y2=y1
-        ! if(indz==k1+1)z1=z2
-        ! if(indz==k2-1)z2=z1
+        !if(indx==i1+1)x1=x2
+        !if(indx==i2-1)x2=x1
+        !if(indy==j1+1)y1=y2
+        !if(indy==j2-1)y2=y1
+        !if(indz==k1+1)z1=z2
+        !if(indz==k2-1)z2=z1
+
 
         do z = z1,z2
            winz = 1
@@ -90,7 +88,7 @@ subroutine mirror_definition (Tdomain,rg)
                  winx = 1
                  if(indx==i1+1)winx = 1-(0.5*cos(4.*atan(1.)*real(x-x1)/real(x2-x1))+0.5)
                  if(indx==i2-1)winx =   (0.5*cos(4.*atan(1.)*real(x-x1)/real(x2-x1))+0.5)
-                 Tdomain%specel(n)%win_mirror(x,y,z)=1-(winx*winy*winz)
+                 Tdomain%specel(n)%win_mirror(x,y,z)=winx*winy*winz
               enddo
            enddo
         enddo
@@ -108,16 +106,16 @@ subroutine mirror_definition (Tdomain,rg)
         z1 = 0
         z2 = ngllz-1
 
-        ! if(indx==i1)x1=x2
-        ! if(indx==i2)x2=x1
-        ! if(indy==j1)y1=y2
-        ! if(indy==j2)y2=y1
-        ! if(indz==k1)z1=z2
-        ! if(indz==k2)z2=z1
+        !if(indx==i1)x1=x2
+        !if(indx==i2)x2=x1
+        !if(indy==j1)y1=y2
+        !if(indy==j2)y2=y1
+        !if(indz==k1)z1=z2
+        !if(indz==k2)z2=z1
 
 
         do z = z1,z2
-            winz = 1
+           winz = 1
            if(indz==k1)winz = 1-(0.5*cos(4.*atan(1.)*real(z-z1)/real(z2-z1))+0.5)
            if(indz==k2)winz =   (0.5*cos(4.*atan(1.)*real(z-z1)/real(z2-z1))+0.5)
            do y = y1,y2
@@ -129,7 +127,6 @@ subroutine mirror_definition (Tdomain,rg)
                  if(indx==i1)winx = 1-(0.5*cos(4.*atan(1.)*real(x-x1)/real(x2-x1))+0.5)
                  if(indx==i2)winx =   (0.5*cos(4.*atan(1.)*real(x-x1)/real(x2-x1))+0.5)
                  Tdomain%specel(n)%win_mirror_ext(x,y,z)=winx*winy*winz
-                 ! Tdomain%specel(n)%win_mirror_ext(x,y,z)=1
               enddo
            enddo
         enddo
@@ -248,8 +245,6 @@ subroutine mirror_definition (Tdomain,rg)
 
   enddo
   !
-  print*, 'i = ', ngll_inner, 'ngll_mirror =', ngll_mirror
-
   i = 3*ngll_if
   Tdomain%mirror_displ%recl_mirror = i
   Tdomain%mirror_force%recl_mirror = i
@@ -265,7 +260,6 @@ subroutine mirror_definition (Tdomain,rg)
      allocate(x_gll(ngll_mirror))
      allocate(y_gll(ngll_mirror))
      allocate(z_gll(ngll_mirror))
-     allocate(win_value_ext(ngll_mirror))
      !
      i = 0
      !
@@ -296,16 +290,9 @@ subroutine mirror_definition (Tdomain,rg)
                     xa = Tdomain%Globcoord(0,iglob)
                     ya = Tdomain%Globcoord(1,iglob)
                     za = Tdomain%Globcoord(2,iglob)
-                    x_gll(i) = Tdomain%rot(0,0)*xa + Tdomain%rot(0,1)*ya + Tdomain%rot(0,2)*za 
+                    x_gll(i) = Tdomain%rot(0,0)*xa + Tdomain%rot(0,1)*ya + Tdomain%rot(0,2)*za       
                     y_gll(i) = Tdomain%rot(1,0)*xa + Tdomain%rot(1,1)*ya + Tdomain%rot(1,2)*za
                     z_gll(i) = Tdomain%rot(2,0)*xa + Tdomain%rot(2,1)*ya + Tdomain%rot(2,2)*za
-                    
-                    win_value_ext(i) = Tdomain%specel(n)%win_mirror_ext(x,y,z)
-                    ! <SA> TENTATIVE !
-                    ! if (nint(x_gll(i)) ==  -2997609 .and. nint(y_gll(i)) ==  -3565861 .and. nint(z_gll(i)) == 4330788)then
-                    !    print*,rg,n,x,y,z
-                    ! endif
-                    ! <\SA>
 
                  enddo
               enddo
@@ -336,13 +323,11 @@ subroutine mirror_definition (Tdomain,rg)
         allocate(x_gll_all(ngll_mirror_tot))
         allocate(y_gll_all(ngll_mirror_tot))
         allocate(z_gll_all(ngll_mirror_tot))
-        allocate(win_value_ext_all(ngll_mirror_tot))
      endif
 
      call mpi_gatherv(x_gll,ngll_mirror,mpi_double_precision,x_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
      call mpi_gatherv(y_gll,ngll_mirror,mpi_double_precision,y_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
      call mpi_gatherv(z_gll,ngll_mirror,mpi_double_precision,z_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
-     call mpi_gatherv(win_value_ext,ngll_mirror,mpi_real,win_value_ext_all,sizes,displs,mpi_real,0,mpi_comm_world,code)
      call mpi_gatherv(glob_num_mirror,ngll_mirror,mpi_integer,glob_num_mirror_all,sizes,displs,mpi_integer,0,mpi_comm_world,code)
 
      if(rg==0)then
@@ -363,30 +348,24 @@ subroutine mirror_definition (Tdomain,rg)
         write(48, '(a,i9,a)') 'POINTS ',count_gll, ' float'
         open(49,file='mirror.xyz',status='unknown')
         i = index_num(1)    
-        write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i)),&
-             win_value_ext_all(i)
-        write(49,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i)),&
-             win_value_ext_all(i)
+        write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
+        write(49,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
         do n = 2,ngll_mirror_tot
            i = index_num(n)
            if(glob_num_mirror_all(i)/=glob_num_mirror_all(index_num(n-1)))then
-              write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i)),&
-                   win_value_ext_all(i)
-              write(49,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i)),&
-                   win_value_ext_all(i)
+              write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
+              write(49,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
            endif
         enddo
         write(48,*)
         close(49)
         deallocate(sizes,displs,x_gll_all,y_gll_all,z_gll_all,glob_num_mirror_all,index_num)
-        deallocate(win_value_ext_all)
      endif
 
      deallocate(glob_num_mirror)
      deallocate(x_gll)
      deallocate(y_gll)
      deallocate(z_gll)
-     deallocate(win_value_ext)
      call mpi_barrier(mpi_comm_world,code)
      call mpi_finalize(code)
      write (*,*) "END ",rg
@@ -396,10 +375,9 @@ subroutine mirror_definition (Tdomain,rg)
 ! ===================================================================================================
 
   allocate(glob_num_mirror(ngll_if)) ! Check if the allocation is done properly
-  allocate(x_gll(ngll_if)) ! 
-  allocate(y_gll(ngll_if)) ! 
-  allocate(z_gll(ngll_if)) ! 
-  allocate(win_value(ngll_if)) ! 
+  allocate(x_gll(ngll_if)) ! тот же самой
+  allocate(y_gll(ngll_if)) ! тот же самой
+  allocate(z_gll(ngll_if)) ! тот же самой
   ! 
   i = 0
   !
@@ -433,16 +411,9 @@ subroutine mirror_definition (Tdomain,rg)
                     xa = Tdomain%Globcoord(0,iglob)
                     ya = Tdomain%Globcoord(1,iglob)
                     za = Tdomain%Globcoord(2,iglob)
-                    x_gll(i) = Tdomain%rot(0,0)*xa + Tdomain%rot(0,1)*ya + Tdomain%rot(0,2)*za 
+                    x_gll(i) = Tdomain%rot(0,0)*xa + Tdomain%rot(0,1)*ya + Tdomain%rot(0,2)*za       
                     y_gll(i) = Tdomain%rot(1,0)*xa + Tdomain%rot(1,1)*ya + Tdomain%rot(1,2)*za
                     z_gll(i) = Tdomain%rot(2,0)*xa + Tdomain%rot(2,1)*ya + Tdomain%rot(2,2)*za
-                    win_value(i) = Tdomain%specel(n)%win_mirror(x,y,z)
-
-                    ! TENTATIVE
-                    ! if (nint(x_gll(i)) ==  -2949434 .and. nint(y_gll(i)) == -3611416 .and. nint(z_gll(i)) == 4326247)then
-                    ! print*,rg,n,x,y,z
-                    ! endif
-                    ! <\SA>
                  endif
               enddo
            enddo
@@ -477,13 +448,11 @@ subroutine mirror_definition (Tdomain,rg)
      allocate(x_gll_all(ngll_mirror_tot))
      allocate(y_gll_all(ngll_mirror_tot))
      allocate(z_gll_all(ngll_mirror_tot))
-     allocate(win_value_all(ngll_mirror_tot))
   endif
 
   call mpi_gatherv(x_gll,ngll_if,mpi_double_precision,x_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
   call mpi_gatherv(y_gll,ngll_if,mpi_double_precision,y_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
   call mpi_gatherv(z_gll,ngll_if,mpi_double_precision,z_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
-  call mpi_gatherv(win_value,ngll_if,mpi_real,win_value_all,sizes,displs,mpi_real,0,mpi_comm_world,code)
   call mpi_gatherv(glob_num_mirror,ngll_if,mpi_integer,glob_num_mirror_all,sizes,displs,mpi_integer,0,mpi_comm_world,code)
   call mpi_barrier(mpi_comm_world, code)
 
@@ -496,6 +465,7 @@ subroutine mirror_definition (Tdomain,rg)
      allocate(index_num(ngll_mirror_tot))
      allocate(index_pos_all(ngll_mirror_tot))
      call indexx_i4b(glob_num_mirror_all,index_num)
+     ! call indexx_i4b(index_num, index_pos_all)
      count_gll = 1
      index_pos_all(1) = count_gll
      do n = 2,ngll_mirror_tot
@@ -511,6 +481,7 @@ subroutine mirror_definition (Tdomain,rg)
 
   if(Tdomain%t_reversal_mirror==5)then ! Output inner mirror's GLLs for globalwave propagation solver 
      if(rg==0)then
+        print*, 'Entered the third if for root'
         ! <SA> next lines computed before so the double sorting can be computed
         ! allocate(index_num(ngll_mirror_tot))
         ! call indexx_i4b(glob_num_mirror_all,index_num)
@@ -521,35 +492,33 @@ subroutine mirror_definition (Tdomain,rg)
               count_gll = count_gll+1
            endif
         enddo
-        open(48,file='mirror_int.vtk',status='unknown')    
+        open(48,file='mirror.vtk',status='unknown')    
         write(48,'(a)') '# vtk DataFile Version 2.0'
         write(48,'(a)') 'Mirror VTK file'
         write(48,'(a)') 'ASCII'
         write(48,'(a)') 'DATASET UNSTRUCTURED_GRID'
         write(48, '(a,i9,a)') 'POINTS ',count_gll, ' float'
-        open(49,file='mirror_int.xyz',status='unknown')
+        open(49,file='mirror.xyz',status='unknown')
         i = index_num(1)
         ii = minval(glob_num_mirror_all)
-        write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i)),win_value_all(i)
-        write(49,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i)),win_value_all(i)
+        write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
+        write(49,*)1,real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
         do n = 2,ngll_mirror_tot
            i = index_num(n)
            if(glob_num_mirror_all(i)/=glob_num_mirror_all(index_num(n-1)))then
-              write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i)),win_value_all(i)
-              write(49,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i)),win_value_all(i)
+              write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
+              write(49,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
            endif
         enddo
         write(48,*)
         close(49)
         deallocate(sizes,displs,x_gll_all,y_gll_all,z_gll_all,glob_num_mirror_all,index_num)
-        deallocate(win_value_all)
      endif
      
      deallocate(glob_num_mirror)
      deallocate(x_gll)
      deallocate(y_gll)
      deallocate(z_gll)
-     deallocate(win_value)
      call mpi_barrier(mpi_comm_world,code)
      call mpi_finalize(code)
      write (*,*) "END ",rg

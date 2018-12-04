@@ -524,6 +524,7 @@ if(write_model_vtk)then
   close (26)
   call MPI_BARRIER(MPI_COMM_WORLD, code)       
   if(rg==0)then
+  write(*,*)'hellllo'
   !
   ! READ ALL FILE HEADER AND DETERMINE GRID DIMENSIONS
   !
@@ -543,6 +544,7 @@ if(write_model_vtk)then
      ENDIF
      CLOSE(26)
   ENDDO
+  write(*,*)'hellllo',x1,x2,y1,y2,z1,z2
   !
   ALLOCATE(XC(x1:x2,y1:y2,z1:z2))
   ALLOCATE(YC(x1:x2,y1:y2,z1:z2))
@@ -553,9 +555,11 @@ if(write_model_vtk)then
   ! MERGE FILES, READ/WRITE DATA
   !
   DO IPROC = 0,Tdomain%n_proc-1
+  write(*,*)'hellllo opening file proc',iproc    
      write (NAME_VTK_FILE,"(a,I3.3)") "model_for_vtk_",iproc
      open (26,file=trim(NAME_VTK_FILE),status='old',form='UNFORMATTED',access='stream')
      READ(26)NREC,I1,I2,J1,J2,K1,K2
+  write(*,*)'hellllo dealing with proc',iproc,NREC,I1,I2,J1,J2,K1,K2       
      !      
      DO N = 1,NREC
         !
@@ -746,9 +750,7 @@ enddo
 deallocate (timestep)
 deallocate (freqmax)
 ! for saving mirror : sample at twice the Nyquist frequency to be sure
-! decim_fact = int(0.25d0/(fmax*dt)) 
 decim_fact = int(0.25d0/(fmax*dt)) 
-
 Tdomain%mirror_displ%decim_fact = decim_fact
 Tdomain%mirror_force%decim_fact = decim_fact
 Tdomain%mirror_excit%decim_fact = decim_fact

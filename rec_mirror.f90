@@ -20,7 +20,6 @@ subroutine rec_mirror (opt, Tdomain, ntime, rg)
   elseif(opt=='force')then  
      mir=>Tdomain%mirror_force    
   elseif(opt=='excit')then
-     ! print*,Tdomain%mirror_excit%recl_mirror
      mir=>Tdomain%mirror_excit
   else
      write(*,*)'bad argument opt in rec_mirror.f90', opt
@@ -32,7 +31,6 @@ subroutine rec_mirror (opt, Tdomain, ntime, rg)
   !
   if (ntime==0) then
      if (mir%recl_mirror > 0)then
-        ! print*,mir%recl_mirror/3
         if(opt=='excit')then
            write(meta_file,"(a,I3.3)") "meta.",rg  
            open(57,file=meta_file,form='formatted',status='replace')
@@ -88,10 +86,7 @@ subroutine rec_mirror (opt, Tdomain, ntime, rg)
      endif
   enddo
   !
-  if (i/=mir%recl_mirror)then
-     print*,"ERRORRR",i,mir%recl_mirror
-     stop 'A TMP BUFFER HAS A LENGTH DIFFERENT FROM RECL_MIRROR !!!'
-  end if
+  if (i/=mir%recl_mirror)   stop 'A TMP BUFFER HAS A LENGTH DIFFERENT FROM RECL_MIRROR !!!'
   !
   ! filter (convolve with B-spline)
   !
@@ -110,9 +105,6 @@ subroutine rec_mirror (opt, Tdomain, ntime, rg)
   else
      if(mod(ntime,mir%decim_fact)==mir%decim_fact-1)then
         mir%count_rec = mir%count_rec+1  
-        if (rg==102)then
-           write(95,*)mir%tmp(1,1)
-        endif
         if (mir%recl_mirror/=0)then
            write(mir%lunit,rec=mir%count_rec)mir%tmp(:,1)
         endif
@@ -129,9 +121,6 @@ subroutine rec_mirror (opt, Tdomain, ntime, rg)
         do j = 1,mir%spln_order+1
            mir%count_rec = mir%count_rec+1  
            write (mir%lunit,rec=mir%count_rec)mir%tmp(:,j)
-           if (rg==102)then
-              write(95,*)mir%tmp(1,j)
-           endif
         enddo
         deallocate(mir%tmp) 
         ! post processing : obtain B-spline coefs

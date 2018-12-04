@@ -28,12 +28,10 @@ subroutine Newmark (Tdomain,rg,ntime)
   doubleprecision, parameter :: alpha = 0.5, beta = 0.5, gam = 1.d0
   integer, parameter :: nt_between_write = 1000
   integer :: iw
-  
-  ! <SA> DEBUG TEST
-  doubleprecision :: exc1, exc2, exc3 
-  ! </SA>
+
 
   dt = Tdomain%sTimeParam%dt
+
 
 !!! Predictor Phase !!!
 
@@ -113,7 +111,7 @@ subroutine Newmark (Tdomain,rg,ntime)
   enddo
 
   if (Tdomain%t_reversal_mirror==1)   call rec_mirror ('displ', Tdomain, ntime, rg)
-  if (Tdomain%t_reversal_mirror==2)   call impose_mirror ('displ', Tdomain, ntime, rg)
+  ! if (Tdomain%t_reversal_mirror==2)   call impose_mirror ('displ', Tdomain, ntime, rg)
   if (Tdomain%t_reversal_mirror==1)then
      call get_mirror_exc(Tdomain, rg,ntime)
      call rec_mirror ('excit', Tdomain, ntime, rg)
@@ -142,21 +140,9 @@ subroutine Newmark (Tdomain,rg,ntime)
            call compute_InternalForces_PML_Elem (Tdomain%specel(n), i_simu, Tdomain%sSubDomain(mat)%hprimex, &
                 Tdomain%sSubDomain(mat)%hTprimey, Tdomain%sSubDomain(mat)%hTprimez)
         endif
-        
-        ! <SA> TEST PURPOSE ONLY
-        ! if(rg==104 .and. n==154)then
-        !    write(73,*)Tdomain%specel(n)%sSimu(0)%Excitation(6,1,6,0),& 
-        !         Tdomain%specel(n)%sSimu(0)%Excitation(6,1,6,1),&
-        !         Tdomain%specel(n)%sSimu(0)%Excitation(6,1,6,2)
-           ! read(73,*)exc1,exc2,exc3
-           ! write(*,*)'adding the one point excitation',exc3
-           ! Tdomain%specel(n)%sSimu(0)%Forces(6,1,6,0) = Tdomain%specel(n)%sSimu(0)%Forces(6,1,6,0) + exc1
-           ! Tdomain%specel(n)%sSimu(0)%Forces(6,1,6,1) = Tdomain%specel(n)%sSimu(0)%Forces(6,1,6,1) + exc2
-           ! Tdomain%specel(n)%sSimu(0)%Forces(6,1,6,2) = Tdomain%specel(n)%sSimu(0)%Forces(6,1,6,2) + exc3
-        ! endif
-        ! </SA>
      enddo
   enddo
+
 
   ! Recording field variables for point matching
   if (Tdomain%t_reversal_mirror==1)   call rec_init (Tdomain, ntime, Tdomain%n_init, rg)
@@ -207,10 +193,6 @@ subroutine Newmark (Tdomain,rg,ntime)
      if(Tdomain%sSource(n)%i_type_source==5)then
         call external_event(Tdomain,rg,ntime)
      endif
-     ! DEBUG IMPOSE MIRROR THAT WE RECORDED PREVIOUSLY
-     if(Tdomain%sSource(n)%i_type_source==6)then
-        call impose_mirror('excit', Tdomain, ntime, rg)
-     endif
   enddo
 
   ! Adjoint Forrces
@@ -234,7 +216,8 @@ subroutine Newmark (Tdomain,rg,ntime)
   endif
 
   if (Tdomain%t_reversal_mirror==1)   call rec_mirror ('force', Tdomain, ntime, rg)
-  if (Tdomain%t_reversal_mirror==2)   call impose_mirror ('force', Tdomain, ntime, rg)
+  ! if (Tdomain%t_reversal_mirror==2)   call impose_mirror ('force', Tdomain, ntime, rg)
+  if (Tdomain%t_reversal_mirror==2)   call impose_mirror ('excit', Tdomain, ntime, rg)
 
 
 !!! Communications !!!
@@ -783,6 +766,7 @@ subroutine Newmark (Tdomain,rg,ntime)
 !!! Save Snapshots !!!
 
   Call save_snapshots (Tdomain,ntime,rg)
+
 
   return
 end subroutine Newmark
