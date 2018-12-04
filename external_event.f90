@@ -16,7 +16,7 @@ subroutine external_event(Tdomain,rg,ntime)
   integer :: ind,i,j,k,n,j1,j2
   doubleprecision, dimension(0:2,0:2) :: tRot
   double precision :: bspln
-  double precision, allocatable :: sav_forces(:,:,:,:)
+  double precision, allocatable :: sav_forces(:,:,:,:) 
 
   if(ntime==0)then !======== Init ===========!
      ! open file
@@ -199,7 +199,7 @@ subroutine external_event(Tdomain,rg,ntime)
               enddo
 
               if(k/=Tdomain%ssrc_ext%n_gll)then
-                 write(*,*)'length doesn"t match',k,Tdomain%ssrc_ext%n_gll
+                 write(*,*)'length does"t match',k,Tdomain%ssrc_ext%n_gll
               else
                  !write(*,*)' it seems ok we have',maxval(Tdomain%ssrc_ext%tmp_x_all(:)),maxval(Tdomain%ssrc_ext%tmp_x_all(:)),ind+j-1
               endif
@@ -253,7 +253,6 @@ subroutine external_event(Tdomain,rg,ntime)
         ngllz = Tdomain%specel(n)%ngllz
         allocate(sav_forces(0:ngllx-1,0:nglly-1,0:ngllz-1,0:2))
         sav_forces(:,:,:,:) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,:)      
-
         ! 1 fill force with displ
         do z = 0,ngllz-1
            do y = 0,nglly-1
@@ -300,7 +299,8 @@ subroutine external_event(Tdomain,rg,ntime)
         endif
         ! 4 add force to force     
         sav_forces(:,:,:,:) = sav_forces(:,:,:,:) - Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,:)
-        
+        ! new forces including external event
+        Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,:) = sav_forces(:,:,:,:)
         deallocate(sav_forces)
      endif
   enddo

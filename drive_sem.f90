@@ -113,17 +113,13 @@ endif
 write (*,*) "Entering the time evolution ",rg
 Tdomain%sTimeParam%Nsnap = 1
 Tdomain%sTimeParam%rtime = 0.d0
-
-! <SA> TEST PURPOSE, WILL BE REMOVED SOON 
-open(73,file="excitation_point.dat",form="formatted",status="unknown")
-! </SA> 
-
 do ntime = 0, Tdomain%sTimeParam%ntime-1
    t = mpi_wtime()
    call suspendcheck
+   ! print*, '[ drive_sem ] Entering Newmark', rg ! DEBUG 
    call Newmark (Tdomain, rg, ntime)
-   
-   !   if (Tdomain%save_snapshot .and. mod(ntime,Tdomain%sTimeParam%dnsnap)==0 .and. ntime/=0) then
+   ! print*, '[ drive_sem ] Exited Newmark', rg ! DEBUG 
+!   if (Tdomain%save_snapshot .and. mod(ntime,Tdomain%sTimeParam%dnsnap)==0 .and. ntime/=0) then
    if (Tdomain%save_snapshot .and. &
        ( (Tdomain%t_reversal_mirror<=1 .and. mod(ntime,Tdomain%sTimeParam%dnsnap)==0) .or. &
          (Tdomain%t_reversal_mirror==2 .and. mod(Tdomain%sTimeParam%ntime-ntime-2,Tdomain%sTimeParam%dnsnap)==0) ) ) then
@@ -152,11 +148,6 @@ do ntime = 0, Tdomain%sTimeParam%ntime-1
    t = mpi_wtime() - t
    if (rg==0.and.mod(ntime,1000)==0)   write (*,*) 'iteration ',ntime,' out of ',Tdomain%sTimeParam%ntime-1 ,' time = ', t
 enddo
-
-! <SA> TEST PURPOSE, WILL BE REMOVED SOON 
-close(73)
-! </SA> 
-
 write (*,*) "Simulation is finished ",rg
 
 !if (Tdomain%t_reversal_mirror==1) then

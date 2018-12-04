@@ -25,9 +25,9 @@ do n = 0,Tdomain%n_elem-1
         allocate (Tdomain%specel(n)%sSimu(i)%Accel (1:ngllx-2, 1:nglly-2, 1:ngllz-2, 0:2))
         allocate (Tdomain%specel(n)%sSimu(i)%Forces (0:ngllx-1, 0:nglly-1, 0:ngllz-1, 0:2))
         ! <SA> Needed to record the mirror excitation 
-        ! print*,'Before the allocation'
+        print*,'Before the allocation'
         allocate (Tdomain%specel(n)%sSimu(i)%Excitation (0:ngllx-1, 0:nglly-1, 0:ngllz-1, 0:2)) 
-        ! print*,'Allocation OK'
+        print*,'Allocation OK'
         ! </SA>
         Tdomain%specel(n)%sSimu(i)%Veloc = 0.d0
         Tdomain%specel(n)%sSimu(i)%Accel = 0.d0

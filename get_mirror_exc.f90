@@ -18,6 +18,9 @@ subroutine get_mirror_exc(Tdomain,rg,ntime)
   double precision :: bspln
   double precision, allocatable :: sav_forces(:,:,:,:)
 
+
+  ! impose source
+
   ! Internal Forces
 
   i_simu = 0
@@ -44,18 +47,18 @@ subroutine get_mirror_exc(Tdomain,rg,ntime)
         endif
 
         ! 2 add force to force
-        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,0) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,0)*(1-Tdomain%specel(n)%win_mirror(:,:,:))
-        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,1) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,1)*(1-Tdomain%specel(n)%win_mirror(:,:,:))
-        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,2) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,2)*(1-Tdomain%specel(n)%win_mirror(:,:,:))
+        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,0) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,0)*Tdomain%specel(n)%win_mirror(:,:,:)
+        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,1) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,1)*Tdomain%specel(n)%win_mirror(:,:,:)
+        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,2) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,2)*Tdomain%specel(n)%win_mirror(:,:,:)
 
         ! 3 fill force with windowed displ
         do z = 0,ngllz-1
            do y = 0,nglly-1
               do x = 0,ngllx-1
                  i = i+1
-                 Tdomain%specel(n)%sSimu(i_simu)%Forces(x,y,z,0) = sav_forces(x,y,z,0)*(1-Tdomain%specel(n)%win_mirror(x,y,z))
-                 Tdomain%specel(n)%sSimu(i_simu)%Forces(x,y,z,1) = sav_forces(x,y,z,1)*(1-Tdomain%specel(n)%win_mirror(x,y,z))
-                 Tdomain%specel(n)%sSimu(i_simu)%Forces(x,y,z,2) = sav_forces(x,y,z,2)*(1-Tdomain%specel(n)%win_mirror(x,y,z))
+                 Tdomain%specel(n)%sSimu(i_simu)%Forces(x,y,z,0) = sav_forces(x,y,z,0)*Tdomain%specel(n)%win_mirror(x,y,z)
+                 Tdomain%specel(n)%sSimu(i_simu)%Forces(x,y,z,1) = sav_forces(x,y,z,1)*Tdomain%specel(n)%win_mirror(x,y,z)
+                 Tdomain%specel(n)%sSimu(i_simu)%Forces(x,y,z,2) = sav_forces(x,y,z,2)*Tdomain%specel(n)%win_mirror(x,y,z)
               enddo
            enddo
         enddo
@@ -67,8 +70,7 @@ subroutine get_mirror_exc(Tdomain,rg,ntime)
                 .false., Tdomain%t_reversal_mirror,.false.)
         endif
         ! 4 add force to force     
-        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,:) = Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,:) &
-             + Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,:)
+        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,:) = Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,:) + Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,:)
 
         ! Back to the original forces 
         Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,:) = sav_forces(:,:,:,:)
@@ -78,6 +80,6 @@ subroutine get_mirror_exc(Tdomain,rg,ntime)
   ! if(i/=Tdomain%ssrc_ext%ngll_mirror)write(*,*)'we have a problem with in in external event...'
   ! if (Tdomain%t_reversal_mirror==1)   call rec_mirror ('exc', Tdomain, ntime, rg)
   ! Tdomain%ssrc_ext%init = .false.
- 
+
   return
 end subroutine get_mirror_exc
