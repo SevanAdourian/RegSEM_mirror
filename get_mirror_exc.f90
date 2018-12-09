@@ -47,9 +47,9 @@ subroutine get_mirror_exc(Tdomain,rg,ntime)
         endif
 
         ! 2 add force to force
-        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,0) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,0)*Tdomain%specel(n)%win_mirror(:,:,:)
-        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,1) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,1)*Tdomain%specel(n)%win_mirror(:,:,:)
-        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,2) = Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,2)*Tdomain%specel(n)%win_mirror(:,:,:)
+        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,0) = - Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,0)*Tdomain%specel(n)%win_mirror(:,:,:)
+        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,1) = - Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,1)*Tdomain%specel(n)%win_mirror(:,:,:)
+        Tdomain%specel(n)%sSimu(i_simu)%Excitation(:,:,:,2) = - Tdomain%specel(n)%sSimu(i_simu)%Forces(:,:,:,2)*Tdomain%specel(n)%win_mirror(:,:,:)
 
         ! 3 fill force with windowed displ
         do z = 0,ngllz-1

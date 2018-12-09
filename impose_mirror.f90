@@ -48,7 +48,7 @@ if(mir%decim_fact==1)then
 else
  do j = 1,mir%spln_order+1
     irec = (Tdomain%sTimeParam%ntime-ntime)/mir%decim_fact+1
-    ! print*,rg,mir%decim_fact,Tdomain%sTimeParam%ntime,ntime,irec
+    print*,rg,mir%decim_fact,Tdomain%sTimeParam%ntime,ntime,irec
     if (mir%recl_mirror/=0)read(mir%lunit,rec=irec+j-1)mir%tmp(:,j)
  enddo
 endif
@@ -76,14 +76,31 @@ do n = 0,Tdomain%n_elem-1
       do z = 0,ngllz-1
          do y = 0,nglly-1
             do x = 0,ngllx-1
-               if(Tdomain%specel(n)%win_mirror(x,y,z)/=0)then
+               if (opt=='excit') then
                   do comp = 0,2
-                     if (opt=='displ')  Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) = Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp)-tmp(i)*Tdomain%specel(n)%win_mirror(x,y,z)
-                     if (opt=='force')  Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) = Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp)+tmp(i)*Tdomain%specel(n)%win_mirror(x,y,z)
-                     if (opt=='excit')  Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) = tmp(i)
+                     Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) = &
+                          Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) &
+                          + tmp(i)
                      i = i+1
-	         enddo
-	       endif
+                  enddo
+               endif
+               if(Tdomain%specel(n)%win_mirror(x,y,z)/=0)then
+                  if (opt=='displ') then
+                     do comp = 0,2
+                        Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) = &
+                             Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) & 
+                             - tmp(i)*Tdomain%specel(n)%win_mirror(x,y,z)
+                        i = i+1
+                     enddo
+                  elseif (opt=='force') then
+                     do comp = 0,2
+                        Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) = &
+                             Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp) & 
+                             + tmp(i)*Tdomain%specel(n)%win_mirror(x,y,z)
+                        i = i+1
+                     enddo
+                  endif
+               endif
             enddo
          enddo
       enddo

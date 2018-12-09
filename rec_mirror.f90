@@ -70,15 +70,18 @@ subroutine rec_mirror (opt, Tdomain, ntime, rg)
         do z = 0,ngllz-1
            do y = 0,nglly-1
               do x = 0,ngllx-1
-                 if(Tdomain%specel(n)%win_mirror(x,y,z)/=0)then
+                 if(opt=='excit')then
                     do comp = 0,2
-                       if(opt=='excit')then
-                          tmp(i) = Tdomain%specel(n)%sSimu(0)%Excitation(x,y,z,comp)
-                       else
-                          tmp(i) = Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp)
-                       endif
+                       tmp(i) = Tdomain%specel(n)%sSimu(0)%Excitation(x,y,z,comp)
                        i = i+1     
                     enddo
+                 else
+                    if(Tdomain%specel(n)%win_mirror(x,y,z)/=0)then
+                       do comp = 0,2
+                          tmp(i) = Tdomain%specel(n)%sSimu(0)%Forces(x,y,z,comp)
+                          i = i+1     
+                       enddo
+                    endif
                  endif
               enddo
            enddo

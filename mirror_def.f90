@@ -248,7 +248,7 @@ subroutine mirror_definition (Tdomain,rg)
   i = 3*ngll_if
   Tdomain%mirror_displ%recl_mirror = i
   Tdomain%mirror_force%recl_mirror = i
-  Tdomain%mirror_excit%recl_mirror = i
+  Tdomain%mirror_excit%recl_mirror = 3*ngll_inner ! We need all GLL points
   !
   call mpi_barrier(mpi_comm_world, code)
 
@@ -374,10 +374,10 @@ subroutine mirror_definition (Tdomain,rg)
 
 ! ===================================================================================================
 
-  allocate(glob_num_mirror(ngll_if)) ! Check if the allocation is done properly
-  allocate(x_gll(ngll_if)) ! тот же самой
-  allocate(y_gll(ngll_if)) ! тот же самой
-  allocate(z_gll(ngll_if)) ! тот же самой
+  allocate(glob_num_mirror(ngll_inner)) ! Check if the allocation is done properly
+  allocate(x_gll(ngll_inner)) ! тот же самой
+  allocate(y_gll(ngll_inner)) ! тот же самой
+  allocate(z_gll(ngll_inner)) ! тот же самой
   ! 
   i = 0
   !
@@ -404,17 +404,17 @@ subroutine mirror_definition (Tdomain,rg)
         do z = 0,ngllz-1
            do y = 0,nglly-1
               do x = 0,ngllx-1
-                 if(Tdomain%specel(n)%win_mirror(x,y,z)/=0)then
-                    i = i+1
-                    iglob = Tdomain%specel(n)%Iglobnum(x,y,z)
-                    glob_num_mirror(i) = (x+xs)+(y+ys)*nxtot+(z+zs)*(nxtot*nytot)
-                    xa = Tdomain%Globcoord(0,iglob)
-                    ya = Tdomain%Globcoord(1,iglob)
-                    za = Tdomain%Globcoord(2,iglob)
-                    x_gll(i) = Tdomain%rot(0,0)*xa + Tdomain%rot(0,1)*ya + Tdomain%rot(0,2)*za       
-                    y_gll(i) = Tdomain%rot(1,0)*xa + Tdomain%rot(1,1)*ya + Tdomain%rot(1,2)*za
-                    z_gll(i) = Tdomain%rot(2,0)*xa + Tdomain%rot(2,1)*ya + Tdomain%rot(2,2)*za
-                 endif
+                 ! if(Tdomain%specel(n)%win_mirror(x,y,z)/=0)then
+                 i = i+1
+                 iglob = Tdomain%specel(n)%Iglobnum(x,y,z)
+                 glob_num_mirror(i) = (x+xs)+(y+ys)*nxtot+(z+zs)*(nxtot*nytot)
+                 xa = Tdomain%Globcoord(0,iglob)
+                 ya = Tdomain%Globcoord(1,iglob)
+                 za = Tdomain%Globcoord(2,iglob)
+                 x_gll(i) = Tdomain%rot(0,0)*xa + Tdomain%rot(0,1)*ya + Tdomain%rot(0,2)*za       
+                 y_gll(i) = Tdomain%rot(1,0)*xa + Tdomain%rot(1,1)*ya + Tdomain%rot(1,2)*za
+                 z_gll(i) = Tdomain%rot(2,0)*xa + Tdomain%rot(2,1)*ya + Tdomain%rot(2,2)*za
+                 ! endif
               enddo
            enddo
         enddo
@@ -432,7 +432,7 @@ subroutine mirror_definition (Tdomain,rg)
 
   call mpi_barrier(mpi_comm_world, code)
 
-  call mpi_gather(ngll_if,1,mpi_integer,sizes,1,mpi_integer,0,mpi_comm_world,code)
+  call mpi_gather(ngll_inner,1,mpi_integer,sizes,1,mpi_integer,0,mpi_comm_world,code)
 
   if(rg==0)then
      ngll_mirror_tot = sum(sizes)
@@ -450,16 +450,16 @@ subroutine mirror_definition (Tdomain,rg)
      allocate(z_gll_all(ngll_mirror_tot))
   endif
 
-  call mpi_gatherv(x_gll,ngll_if,mpi_double_precision,x_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
-  call mpi_gatherv(y_gll,ngll_if,mpi_double_precision,y_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
-  call mpi_gatherv(z_gll,ngll_if,mpi_double_precision,z_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
-  call mpi_gatherv(glob_num_mirror,ngll_if,mpi_integer,glob_num_mirror_all,sizes,displs,mpi_integer,0,mpi_comm_world,code)
+  call mpi_gatherv(x_gll,ngll_inner,mpi_double_precision,x_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
+  call mpi_gatherv(y_gll,ngll_inner,mpi_double_precision,y_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
+  call mpi_gatherv(z_gll,ngll_inner,mpi_double_precision,z_gll_all,sizes,displs,mpi_double_precision,0,mpi_comm_world,code)
+  call mpi_gatherv(glob_num_mirror,ngll_inner,mpi_integer,glob_num_mirror_all,sizes,displs,mpi_integer,0,mpi_comm_world,code)
   call mpi_barrier(mpi_comm_world, code)
 
   ! <SA> Second sorting and scattering the line in the specfem mirror file to every proc
   ! so that merging won't be needed afterwards for the convolution
 
-  allocate(Tdomain%index_pos(ngll_if))
+  allocate(Tdomain%index_pos(ngll_inner))
 
   if(rg==0) then
      allocate(index_num(ngll_mirror_tot))
@@ -477,7 +477,7 @@ subroutine mirror_definition (Tdomain,rg)
      enddo
   endif
   
-  call mpi_scatterv(index_pos_all,sizes,displs,mpi_integer,Tdomain%index_pos,ngll_if,mpi_integer,0,mpi_comm_world,code)
+  call mpi_scatterv(index_pos_all,sizes,displs,mpi_integer,Tdomain%index_pos,ngll_inner,mpi_integer,0,mpi_comm_world,code)
 
   if(Tdomain%t_reversal_mirror==5)then ! Output inner mirror's GLLs for globalwave propagation solver 
      if(rg==0)then
@@ -502,7 +502,7 @@ subroutine mirror_definition (Tdomain,rg)
         i = index_num(1)
         ii = minval(glob_num_mirror_all)
         write(48,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
-        write(49,*)1,real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
+        write(49,*)real(x_gll_all(i)),real(y_gll_all(i)),real(z_gll_all(i))
         do n = 2,ngll_mirror_tot
            i = index_num(n)
            if(glob_num_mirror_all(i)/=glob_num_mirror_all(index_num(n-1)))then
